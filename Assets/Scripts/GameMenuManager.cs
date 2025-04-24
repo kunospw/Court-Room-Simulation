@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-    using UnityEditor;
+using UnityEditor;
 #endif
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,8 +11,6 @@ public class GameMenuManager : MonoBehaviour
     public Transform head;
     public float spawnDistance = 2f;
 
-    // Arrays for interactors on both controllers.
-    // For example, element 0 = Left Controller's interactors, element 1 = Right Controller's interactors.
     public GameObject[] directInteractorHolders;
     public GameObject[] rayInteractorHolders;
 
@@ -23,39 +21,29 @@ public class GameMenuManager : MonoBehaviour
             bool menuState = !menu.activeSelf;
             menu.SetActive(menuState);
 
-            // Position the menu in front of the head.
+            // Position & face the menu as beforeÅc
             Vector3 forward = new Vector3(head.forward.x, 0, head.forward.z).normalized;
             menu.transform.position = head.position + forward * spawnDistance;
 
-            // Toggle both sets of interactors:
-            // When the menu is open, enable ray interactors for UI interaction and disable direct interactors.
-            foreach (GameObject rayInteractor in rayInteractorHolders)
-            {
-                if (rayInteractor != null)
-                    rayInteractor.SetActive(menuState);
-            }
-            foreach (GameObject directInteractor in directInteractorHolders)
-            {
-                if (directInteractor != null)
-                    directInteractor.SetActive(!menuState);
-            }
+            foreach (var ray in rayInteractorHolders) ray?.SetActive(menuState);
+            foreach (var direct in directInteractorHolders) direct?.SetActive(!menuState);
         }
 
-        // Update the menu orientation so it faces the user.
         if (menu.activeSelf)
         {
-            menu.transform.LookAt(new Vector3(head.position.x, menu.transform.position.y, head.position.z));
-            menu.transform.forward *= -1; // Flip the menu.
+            menu.transform.LookAt(
+              new Vector3(head.position.x, menu.transform.position.y, head.position.z)
+            );
+            menu.transform.forward *= -1;
         }
     }
 
-    // Call this method (e.g., from a UI button) to quit the game.
     public void QuitGame()
     {
-        #if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-        #else
-            Application.Quit();
-        #endif
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
